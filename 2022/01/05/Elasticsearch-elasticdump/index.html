@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yan Jie">
+
+
+
+
+
+<title>Elasticsearch-elasticdump | YanJie Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">YanJie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">YanJie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Elasticsearch-elasticdump</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yan Jie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">一月 5, 2022&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>说明：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">若已经有node环境只下载npm-cache.tar 即可,解压到/root/ 目录下</span><br><span class="line">执行安装后提示: npm ERR! Cannot read properties of null (reading &#x27;package&#x27;)</span><br><span class="line">建议尝试安装时指定安装目录更换安装路径 参数: --prefix</span><br><span class="line">例如：npm install --cache /root/.npm --optional --cache-min 99999999 --prefix ./ --shrinkwrap false elasticdump</span><br><span class="line"></span><br><span class="line">安装找不到命令请检查node环境变量,如无问题 需增加软链接</span><br><span class="line">例如:(当前为node家目录)</span><br><span class="line">ln -s ../lib/node_modules/elasticdump/bin/elasticdump bin/elasticdump</span><br></pre></td></tr></table></figure>
+
+<h3 id="一-离线安装elasticdump"><a href="#一-离线安装elasticdump" class="headerlink" title="一.离线安装elasticdump"></a>一.离线安装elasticdump</h3><p>准备工作:<br>下载压缩包: 链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1VD--fwspgUCJ_7n_kHNlzw">https://pan.baidu.com/s/1VD--fwspgUCJ_7n_kHNlzw</a> 提取码: 3zsh</p>
+<h5 id="1-下载两个压缩包"><a href="#1-下载两个压缩包" class="headerlink" title="1.下载两个压缩包"></a>1.下载两个压缩包</h5><pre><code>node-v10.16.0-linux-x64.tar.gz 存放到/opt 目录下
+npm-cache.tar 存放到/root 目录下
+</code></pre>
+<h5 id="2-解压node"><a href="#2-解压node" class="headerlink" title="2.解压node"></a>2.解压node</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf node-v10.16.0-linux-x64.tar.gz</span><br></pre></td></tr></table></figure>
+<h5 id="3-配置环境变量"><a href="#3-配置环境变量" class="headerlink" title="3.配置环境变量"></a>3.配置环境变量</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line">export NODE_HOME=/opt/node-v10.16.0-linux-x64</span><br><span class="line">export PATH=$PATH:$NODE_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-确认是否安装成功"><a href="#4-确认是否安装成功" class="headerlink" title="4.确认是否安装成功"></a>4.确认是否安装成功</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node -v  </span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure>
+<h5 id="5-解压-npm-cache-tar的包"><a href="#5-解压-npm-cache-tar的包" class="headerlink" title="5.解压 npm-cache.tar的包"></a>5.解压 npm-cache.tar的包</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd /root</span><br><span class="line">tar -xvf npm-cache.tar</span><br><span class="line"></span><br><span class="line">ll -h 检查是否存在.npm目录</span><br></pre></td></tr></table></figure>
+
+<h5 id="6-执行安装elasticdump命令"><a href="#6-执行安装elasticdump命令" class="headerlink" title="6.执行安装elasticdump命令"></a>6.执行安装elasticdump命令</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /opt/node-v10.16.0-linux-x64/lib</span><br><span class="line">npm install --cache /root/.npm --optional --cache-min 99999999 --shrinkwrap false elasticdump</span><br></pre></td></tr></table></figure>
+
+<h5 id="7-检查状态"><a href="#7-检查状态" class="headerlink" title="7.检查状态"></a>7.检查状态</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">执行命令 </span><br><span class="line">elasticdump --help</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="二-基础命令-es数据迁移"><a href="#二-基础命令-es数据迁移" class="headerlink" title="二.基础命令(es数据迁移)"></a>二.基础命令(es数据迁移)</h3><h4 id="1-数据迁移"><a href="#1-数据迁移" class="headerlink" title="1. 数据迁移"></a>1. 数据迁移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">input:配置es输出数据IP地址</span><br><span class="line">output:配置es接收数据IP地址</span><br><span class="line">数据迁移： </span><br><span class="line">&#x27;#拷贝analyzer分词</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=http://localhost1:9200/my_index \</span><br><span class="line">  --type=analyzer</span><br><span class="line"></span><br><span class="line">&#x27;#拷贝映射</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=http://localhost1:9200/my_index \</span><br><span class="line">  --type=mapping</span><br><span class="line">  </span><br><span class="line">  &#x27;#拷贝数据</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=http://localhost1:9200/my_index \</span><br><span class="line">  --type=data</span><br></pre></td></tr></table></figure>
+<h4 id="2-保存本地方法"><a href="#2-保存本地方法" class="headerlink" title="2. 保存本地方法"></a>2. 保存本地方法</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 备份索引数据到文件里:</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=/data/my_index_mapping.json \</span><br><span class="line">  --type=mapping</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=/data/my_index.json \</span><br><span class="line">  --type=data</span><br><span class="line"></span><br><span class="line"># 把一个查询结果备份到文件中</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=http://localhost:9200/my_index \</span><br><span class="line">  --output=query.json \</span><br><span class="line">  --searchBody &#x27;&#123;&quot;query&quot;:&#123;&quot;term&quot;:&#123;&quot;username&quot;: &quot;admin&quot;&#125;&#125;&#125;&#x27;</span><br><span class="line"></span><br><span class="line">恢复数据</span><br><span class="line"># 将备份文件的数据导入ES</span><br><span class="line">elasticdump \</span><br><span class="line">  --input=./data.json \</span><br><span class="line">  --output=http://localhost:9200 </span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Yan Jie</span>
+                    </p>
+                
+                
+
+                
+                
+                    
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/elasticsearch/"># elasticsearch</a>
+                    
+                        <a href="/tags/elasticdump/"># elasticdump</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/01/06/Elasticsearch-%E5%BF%AB%E7%85%A7/">Elasticsearch-快照</a>
+            
+            
+            <a class="next" rel="next" href="/2022/01/04/%E5%90%8C%E4%B8%80%E5%8F%B0%E8%AE%BE%E5%A4%87%E9%85%8D%E7%BD%AEgithub%E5%92%8Cgitlab/">同一台设备配置github和gitlab</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Yan Jie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

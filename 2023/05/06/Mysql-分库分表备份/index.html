@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yan Jie">
+
+
+
+
+
+<title>Mysql-分库分表备份 | YanJie Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">YanJie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">YanJie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Mysql-分库分表备份</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yan Jie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">五月 6, 2023&nbsp;&nbsp;16:34:22</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">MYUSER=root</span><br><span class="line">MYPWD=&quot;123456&quot;</span><br><span class="line">IP=10.10.10.10</span><br><span class="line">DBPATH=/data/mysql_backup/mysql_db_back</span><br><span class="line">MYCMD=&quot;mysql -u$MYUSER -p$MYPWD -h$IP -P3306&quot;</span><br><span class="line">MYDUMP=&quot;mysqldump -u$MYUSER -p$MYPWD -h$IP -P3306&quot;</span><br><span class="line">[ ! -d &quot;$DBPATH&quot; ] &amp;&amp; mkdir $DBPATH</span><br><span class="line">for dbname in `$MYCMD -e &quot;show databases;&quot;|sed &#x27;1d&#x27;|egrep -v &quot;mysql|schema&quot;`</span><br><span class="line">do</span><br><span class="line">    # 创建数据库同名文件夹</span><br><span class="line">    mkdir $&#123;DBPATH&#125;/$(date +%F)/$&#123;dbname&#125;_$(date +%F) -p</span><br><span class="line">    for table in `$MYCMD -e &quot;show tables from $dbname;&quot;|sed &#x27;1d&#x27;`</span><br><span class="line">    do</span><br><span class="line">        $MYDUMP $dbname $table &gt; $DBPATH/$(date +%F)/$&#123;dbname&#125;_$(date +%F)/$&#123;dbname&#125;_$&#123;table&#125;.sql</span><br><span class="line">        # $MYDUMP $dbname $table|gzip &gt; $DBPATH/$&#123;dbname&#125;_$(date +%F)/$&#123;dbname&#125;_$&#123;table&#125;.sql.gz</span><br><span class="line">    done</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">echo &quot;备份完成-压缩备份目录&quot;</span><br><span class="line">tar -zcvf $DBPATH/$(date +%F).tar.gz $DBPATH/$(date +%F) --remove-files</span><br><span class="line"></span><br><span class="line">echo &quot;删除7天前数据&quot;</span><br><span class="line">echo `find $DBPATH -mtime +7`</span><br><span class="line">find $DBPATH -mtime +7 | xargs rm -rf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Yan Jie</span>
+                    </p>
+                
+                
+
+                
+                
+                    
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/mysql/"># mysql</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/05/23/Mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5-Q-A/">Mysql主从同步-Q&A</a>
+            
+            
+            <a class="next" rel="next" href="/2022/01/11/Kafka-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Kafka-常用命令</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Yan Jie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

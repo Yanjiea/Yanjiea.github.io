@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yan Jie">
+
+
+
+
+
+<title>Elasticsearch-快照 | YanJie Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">YanJie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">YanJie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">归档</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Elasticsearch-快照</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yan Jie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">一月 6, 2022&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>说明：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">要使用快照功能，必须首先创建一个保存数据的仓库。有多个仓库类型可以供你选择：</span><br><span class="line">1.共享文件系统，比如 NAS</span><br><span class="line">2.Amazon S3</span><br><span class="line">3.HDFS (Hadoop 分布式文件系统)</span><br><span class="line">4.Azure Cloud</span><br><span class="line"></span><br><span class="line">本文章使用共享文件系统方式进行</span><br></pre></td></tr></table></figure>
+<p>注意事项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">数据迁移前检查ES配置文件，确保jvm及yml配置可以负载后期数据入库数据量，建议和原集群配置相同或者更高。</span><br><span class="line"></span><br><span class="line">提前导入ES所需要的mapping信息</span><br></pre></td></tr></table></figure>
+<h2 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1.环境准备"></a>1.环境准备</h2><h3 id="1-1-安装挂载共享目录工具"><a href="#1-1-安装挂载共享目录工具" class="headerlink" title="1.1 安装挂载共享目录工具"></a>1.1 安装挂载共享目录工具</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 所有ES节点安装fuse：</span></span><br><span class="line">fuse-2.9.2-11.el7.x86_64.rpm</span><br><span class="line">fuse-libs-2.9.2-11.el7.x86_64.rpm</span><br><span class="line">fuse-sshfs-2.10-1.el7.x86_64.rpm</span><br><span class="line"><span class="meta">#</span><span class="bash"> 执行强制安装</span></span><br><span class="line">Rpm -ivh *.rpm –nodeps –force </span><br><span class="line"></span><br><span class="line">获取地址：https://www.aliyundrive.com/s/tEjTn8RtWS5</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-配置共享目录"><a href="#1-2-配置共享目录" class="headerlink" title="1.2  配置共享目录"></a>1.2  配置共享目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 选择一台主机设置共享目录</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 选一个节点创建备份目录/data/backup，确保目录大小足够备份</span></span><br><span class="line">mkdir -p /data/snapshot</span><br><span class="line">chown -R elsearch:elsearch /data/</span><br><span class="line">chmod -R 777 /data</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-挂载共享目录"><a href="#1-3-挂载共享目录" class="headerlink" title="1.3 挂载共享目录"></a>1.3 挂载共享目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 在所有Elasticsearch节点创建挂载目录</span></span><br><span class="line">mkdir /mnt/snapshot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 将所有挂载目录的所属用户及用户组修改为Elasticsearch用户</span></span><br><span class="line">chown -R elsearch:elsearch /mnt/snapshot</span><br><span class="line">chmod -R 777 /mnt/snapshot</span><br><span class="line"><span class="meta">#</span><span class="bash"> 各个Elasticsearch节点上执行如下命令，设置共享目录</span></span><br><span class="line">sshfs hostname:/data/snapshot/ /mnt/snapshot/ -o allow_other</span><br><span class="line"></span><br><span class="line">注意：/etc/hosts 下所有es节点增加域名解析 </span><br><span class="line">	Hostname 为设置共享目录主机的主机名或者ip地址(22端口联通)</span><br><span class="line">所有主机挂载目录建议保持一致</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-4-修改ES配置"><a href="#1-4-修改ES配置" class="headerlink" title="1.4 修改ES配置"></a>1.4 修改ES配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 修改ES迁移集群和被迁移集群各个节点的配置文件elasticsearch.yml</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加如下内容：</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 快照路径, 路径需要与各个节点挂载共享目录一致</span></span><br><span class="line">path.repo: &quot;/mnt/snapshot&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启Elasticsearch服务</span></span><br><span class="line">./elasticsearch –d</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-数据迁移"><a href="#2-数据迁移" class="headerlink" title="2.数据迁移"></a>2.数据迁移</h2><h3 id="2-1-快照"><a href="#2-1-快照" class="headerlink" title="2.1 快照"></a>2.1 快照</h3><h4 id="2-1-1-注册仓库"><a href="#2-1-1-注册仓库" class="headerlink" title="2.1.1 注册仓库"></a>2.1.1 注册仓库</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 注册仓库</span></span><br><span class="line">curl -H &quot;Content-Type: application/json&quot; -X PUT http://localhost:9200/_snapshot/data_repo -d </span><br><span class="line">&#x27;</span><br><span class="line">&#123;</span><br><span class="line">	&quot;type&quot;: &quot;fs&quot;,</span><br><span class="line">	&quot;settings&quot;: &#123;</span><br><span class="line">		&quot;location&quot;: &quot;/mnt/backup/idss_repo&quot;,</span><br><span class="line">		&quot;max_restore_bytes_per_sec&quot;: &quot;150mb&quot;,</span><br><span class="line">		&quot;max_snapshot_bytes_per_sec&quot;: &quot;150mb&quot;,</span><br><span class="line">		&quot;compress&quot;: true</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 返回信息：</span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;acknowledged&quot; : true</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数说明：</span></span><br><span class="line">type：fs    表示以快照的方式存储文件</span><br><span class="line">location：共享文件系统路径必须确保集群所有节点都可以访问到</span><br><span class="line">max_restore_bytes_per_sec:节点恢复速率（当从仓库恢复数据时）。默认20mb/s。</span><br><span class="line">max_snapshot_bytes_per_sec:每个节点快照速率（当快照数据进入仓库时）。默认20mb/s。</span><br><span class="line">compress:是否压缩，默认为是创建快照</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 快照速率及恢复速率可以根据实际环境配置 例如：100mb</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改仓库命令 put修改为post</span></span><br><span class="line">curl -H &quot;Content-Type: application/json&quot; -X POST http://localhost:9200/_snapshot/data_repo -d </span><br><span class="line">&#x27;</span><br><span class="line">&#123;</span><br><span class="line">	&quot;type&quot;: &quot;fs&quot;,</span><br><span class="line">	&quot;settings&quot;: &#123;</span><br><span class="line">		&quot;location&quot;: &quot;/mnt/backup/idss_repo&quot;,</span><br><span class="line">		&quot;max_restore_bytes_per_sec&quot;: &quot;100mb&quot;,</span><br><span class="line">		&quot;max_snapshot_bytes_per_sec&quot;: &quot;100mb&quot;,</span><br><span class="line">		&quot;compress&quot;: true</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看仓库信息</span></span><br><span class="line">curl -XGET localhost:9200/_snapshot?pretty # 查看仓库列表</span><br><span class="line">curl -XGET localhost:9200/_snapshot/data_repo/_all?pretty # 查看仓库下快照列表</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-2-创建快照"><a href="#2-1-2-创建快照" class="headerlink" title="2.1.2 创建快照"></a>2.1.2 创建快照</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 生成快照 不加参数默认将所有索引生成快照</span></span><br><span class="line">curl -XPUT localhost:9200/_snapshot/data_repo/data_snapshot?wait_for_completion=true?pretty</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 指定索引生成快照</span> </span><br><span class="line">curl -XPUT localhost:9200/_snapshot/idss_repo/data_snapshot?wait_for_completion=true?pretty -d</span><br><span class="line">&#x27;</span><br><span class="line">&#123;&quot;indices&quot;: &quot;index_1,index_2&quot;&#125;</span><br><span class="line">&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数说明</span></span><br><span class="line">wait_for_completion 参数指定创建snapshot的请求是否等待快照创建完成再返回，不指定则后台运行。</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看快照进度</span></span><br><span class="line">curl -XGET localhost:9200/_snapshot/data_repo/data_snapshot/_status?pretty</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部分返回信息：</span></span><br><span class="line">    &#123;</span><br><span class="line">      &quot;snapshot&quot; : &quot;historical_20220318&quot;,</span><br><span class="line">      &quot;repository&quot; : &quot;idss_repo&quot;,</span><br><span class="line">      &quot;uuid&quot; : &quot;QtjZxzm0QEWodnyLbO8bBQ&quot;,</span><br><span class="line">      &quot;state&quot; : &quot;STARTED&quot;,</span><br><span class="line">      &quot;shards_stats&quot; : &#123;</span><br><span class="line">        &quot;initializing&quot; : 3692,</span><br><span class="line">        &quot;started&quot; : 15,</span><br><span class="line">        &quot;finalizing&quot; : 0,</span><br><span class="line">        &quot;done&quot; : 4055,</span><br><span class="line">        &quot;failed&quot; : 0,</span><br><span class="line">        &quot;total&quot; : 7762</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数介绍</span></span><br><span class="line">initializing:分片在检查集群状态看看自己是否可以被快照。这个一般是非常快的。</span><br><span class="line">started:数据正在被传输到仓库。(传输数量根据网络速度决定)</span><br><span class="line">finalizing:数据传输完成；分片现在在发送快照元数据。</span><br><span class="line">done:快照完成！</span><br><span class="line">failed:快照处理的时候碰到了错误，这个分片/索引/快照不可能完成了。检查你的日志获取更多信息。</span><br><span class="line">initializing + started + done = total</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 快照结束后可查看使用时间</span></span><br><span class="line">curl -XGET localhost:29200/_snapshot/data_repo/data_snapshot?pretty </span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 返回部分信息：</span></span><br><span class="line">	  &quot;state&quot; : &quot;SUCCESS&quot;,</span><br><span class="line">      &quot;start_time&quot; : &quot;2022-03-20T01:48:12.157Z&quot;,</span><br><span class="line">      &quot;start_time_in_millis&quot; : 1647740892157,</span><br><span class="line">      &quot;end_time&quot; : &quot;2022-03-20T01:48:13.692Z&quot;,</span><br><span class="line">      &quot;end_time_in_millis&quot; : 1647740893692,</span><br><span class="line">      &quot;duration_in_millis&quot; : 1535,</span><br><span class="line">      &quot;failures&quot; : [ ],</span><br><span class="line">      &quot;shards&quot; : &#123;</span><br><span class="line">        &quot;total&quot; : 5,</span><br><span class="line">        &quot;failed&quot; : 0,</span><br><span class="line">        &quot;successful&quot; : 5</span><br><span class="line">      &#125;</span><br><span class="line">      	</span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数介绍</span></span><br><span class="line">start_time_in_millis：快照开始时间</span><br><span class="line">end_time_in_millis：快照结束时间</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-3-删除快照"><a href="#2-1-3-删除快照" class="headerlink" title="2.1.3 删除快照"></a>2.1.3 删除快照</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE http://localhost:9200/_snapshot/data_repo/snapshot_1</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-恢复"><a href="#2-2-恢复" class="headerlink" title="2.2 恢复"></a>2.2 恢复</h3><h4 id="2-2-1-注册仓库"><a href="#2-2-1-注册仓库" class="headerlink" title="2.2.1 注册仓库"></a>2.2.1 注册仓库</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 注册仓库</span></span><br><span class="line">curl -H &quot;Content-Type: application/json&quot; -X PUT http://localhost:9200/_snapshot/data_repo -d </span><br><span class="line">&#x27;</span><br><span class="line">&#123;</span><br><span class="line">	&quot;type&quot;: &quot;fs&quot;,</span><br><span class="line">	&quot;settings&quot;: &#123;</span><br><span class="line">		&quot;location&quot;: &quot;/mnt/backup/data_repo&quot;,</span><br><span class="line">		&quot;max_restore_bytes_per_sec&quot;: &quot;150mb&quot;,</span><br><span class="line">		&quot;max_snapshot_bytes_per_sec&quot;: &quot;150mb&quot;,</span><br><span class="line">		&quot;compress&quot;: true</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 详见 2.2.2 章节</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-快照恢复"><a href="#2-2-2-快照恢复" class="headerlink" title="2.2.2 快照恢复"></a>2.2.2 快照恢复</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看仓库下快照 是否存在需要恢复的快照</span></span><br><span class="line">curl -XGET localhost:9200/_snapshot/data_repo/_all?pretty</span><br><span class="line"><span class="meta">#</span><span class="bash"> 恢复快照 data_repo/data_snapshot 修改为对应的仓库名和快照名</span></span><br><span class="line">curl -XPOST localhost:9200/_snapshot/data_repo/data_snapshot/_restore</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看快照状态</span></span><br><span class="line">curl -XGET localhost:9200/_snapshot/data_repo/data_snapshot/_status</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看恢复状态 可以看到所有节点完成状态</span></span><br><span class="line">curl -XGET localhost:9200/_recovery?pretty</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-3-验证"><a href="#2-2-3-验证" class="headerlink" title="2.2.3 验证"></a>2.2.3 验证</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看集群状态</span></span><br><span class="line">curl localhost:9200/_cluster/health?pretty</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> yellow状态 等待 unassigned_shards 数量恢复即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-开机挂载"><a href="#2-2-开机挂载" class="headerlink" title="2.2 开机挂载"></a>2.2 开机挂载</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local</span><br><span class="line"><span class="meta">#</span><span class="bash"> 编辑脚本</span></span><br><span class="line">vi mount-sshfs.sh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 执行挂载命令</span></span><br><span class="line">sshfs root@hostname:/data/snapshot/ /mnt/snapshot/ -o allow_other -o nonempty</span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="comment">#</span></span></span><br><span class="line"></span><br><span class="line">chmod +x mount-sshfs.sh</span><br><span class="line">vim /etc/rc.d/rc.local</span><br><span class="line"><span class="meta">#</span><span class="bash"> 增加配置</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 开机挂载共享磁盘，es快照使用</span> </span><br><span class="line">sh /usr/local/mount-sshfs.sh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改为本地路径信息</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Yan Jie</span>
+                    </p>
+                
+                
+
+                
+                
+                    
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/elasticsearch/"># elasticsearch</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/01/07/Elasticsearch-head/">Elasticsearch-head</a>
+            
+            
+            <a class="next" rel="next" href="/2022/01/05/Elasticsearch-elasticdump/">Elasticsearch-elasticdump</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Yan Jie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
